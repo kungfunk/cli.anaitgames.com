@@ -1,0 +1,12 @@
+{
+    "name": "kungfunk/cli.anaitgames.com",
+    "authors": [
+        {
+            "name": "Víctor Calzón",
+            "email": "kung.funk@gmail.com"
+        }
+    ],
+    "require": {
+        "symfony/console": "^4.1"
+    }
+}

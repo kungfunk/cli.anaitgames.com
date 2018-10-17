@@ -7,10 +7,6 @@ SET sql_mode = 'NO_AUTO_VALUE_ON_ZERO';
 
 SET NAMES utf8mb4;
 
-DROP DATABASE anaitgames;
-CREATE DATABASE anaitgames;
-USE anaitgames;
-
 DROP TABLE IF EXISTS `bans`;
 CREATE TABLE `bans` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,

@@ -9,6 +9,7 @@ use Symfony\Component\Console\Application;
 
 use Commands\Seed\SeedCommand;
 use Commands\Create\CreateCommand;
+use Commands\Clear\ClearCommand;
 
 $dotenv = new Dotenv(__DIR__);
 $dotenv->load();
@@ -17,5 +18,6 @@ $app = new Application();
 
 $app->add(new SeedCommand());
 $app->add(new CreateCommand());
+$app->add(new ClearCommand());
 
 $app->run();

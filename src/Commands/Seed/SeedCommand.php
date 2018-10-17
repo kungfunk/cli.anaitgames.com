@@ -26,7 +26,7 @@ class SeedCommand extends Command
             $result = $seed->populate($database);
             $output->writeln("Database populated with {$result} rows");
         } catch (\Exception $exception) {
-            $output->writeIn("Error populating database: {$exception->getMessage()}");
+            $output->writeln("Error populating database: {$exception->getMessage()}");
         }
     }
 }

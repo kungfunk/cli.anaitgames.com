@@ -12,7 +12,10 @@
         }
     },
     "require": {
+        "php": ">=7.1",
+        "ext-pdo": "*",
         "symfony/console": "^4.1",
-        "vlucas/phpdotenv": "^2.5"
+        "vlucas/phpdotenv": "^2.5",
+        "fzaninotto/faker": "^1.8"
     }
 }

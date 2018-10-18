@@ -1,4 +1,3 @@
-USE anaitgames;
 SET FOREIGN_KEY_CHECKS = 0;
 TRUNCATE table users;
 TRUNCATE table posts;

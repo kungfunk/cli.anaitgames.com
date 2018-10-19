@@ -24,7 +24,7 @@ class TagRepository extends PDORepository
     public function addRelationship($tagId, $postId)
     {
         $statement = $this->connection->prepare(
-            "INSERT IGNORE INTO `posts_tags` (`post_id`, `tag_id`) VALUES (?, ?)"
+            "INSERT INTO `posts_tags` (`post_id`, `tag_id`) VALUES (?, ?)"
         );
         return $statement->execute([$tagId, $postId]);
     }

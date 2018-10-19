@@ -30,76 +30,169 @@ use Commands\Seed\Seeders\LogSeeder;
 
 class SeedCommand extends Command
 {
-    private const DEFAULT_USERS_NUMBER = 10;
-    private const DEFAULT_POSTS_NUMBER = 10;
-    private const DEFAULT_TAGS_NUMBER = 5;
-    private const DEFAULT_POSTS_TAGS_NUMBER = 20;
-    private const DEFAULT_COMMENTS_NUMBER = 50;
-    private const DEFAULT_COMMENT_REPORTS_NUMBER = 20;
-    private const DEFAULT_MENTIONS_NUMBER = 20;
-    private const DEFAULT_BANS_NUMBER = 10;
-    private const DEFAULT_IP_BANS_NUMBER = 5;
-    private const DEFAULT_LOGS_NUMBER = 20;
+    private const DEFAULT_USERS_NUMBER = 100;
+    private const DEFAULT_POSTS_NUMBER = 1000;
+    private const DEFAULT_TAGS_NUMBER = 500;
+    private const DEFAULT_POSTS_TAGS_NUMBER = 2000;
+    private const DEFAULT_COMMENTS_NUMBER = 15000;
+    private const DEFAULT_COMMENT_REPORTS_NUMBER = 200;
+    private const DEFAULT_MENTIONS_NUMBER = 5000;
+    private const DEFAULT_BANS_NUMBER = 100;
+    private const DEFAULT_IP_BANS_NUMBER = 30;
+    private const DEFAULT_LOGS_NUMBER = 5000;
+
+    private $connection;
+    private $progressBar;
+    private $totalCount = 0;
+
+    private $userIds;
+    private $postIds;
+    private $commentIds;
+    private $tagIds;
 
     protected function configure()
     {
         $this->setName('seed')
             ->setDescription('Populates any given database with new models.')
-            ->addArgument('database', InputArgument::REQUIRED, 'What database do you wish populate)');
+            ->addArgument('database', InputArgument::REQUIRED, 'What database do you wish populate');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $databaseName = $input->getArgument('database');
+        $this->progressBar = new ProgressBar($output);
+        $this->progressBar->setOverwrite(true);
 
         try {
-            $connection = PDOConnectorFactory::getConnection($databaseName);
-            $progressBar = new ProgressBar($output);
-            $progressBar->setOverwrite(true);
+            $this->connection = PDOConnectorFactory::getConnection($databaseName);
 
-            $userSeeder = new UserSeeder(new UserRepository($connection));
-            $usersCount = $userSeeder->populate($progressBar, self::DEFAULT_USERS_NUMBER);
+            $usersCount = $this->populateUsers(self::DEFAULT_USERS_NUMBER);
             $output->writeln("\nStep 1/10 - {$usersCount} users added");
 
-            $postSeeder = new PostSeeder(new PostRepository($connection));
-            $postsCount = $postSeeder->populate($progressBar, self::DEFAULT_POSTS_NUMBER, $userSeeder->insertedIds);
+            $postsCount = $this->populatePosts(self::DEFAULT_POSTS_NUMBER);
             $output->writeln("\nStep 1/10 - {$postsCount} posts added");
 
-            $tagsSeeder = new TagSeeder(new TagRepository($connection));
-            $tagsCount = $tagsSeeder->populate($progressBar, self::DEFAULT_TAGS_NUMBER);
+            $tagsCount = $this->populateTags(self::DEFAULT_TAGS_NUMBER);
             $output->writeln("\nStep 3/10 - {$tagsCount} tags added");
 
-            $postsTagsCount = $tagsSeeder->populatePostsTagsRelationship($progressBar, self::DEFAULT_POSTS_TAGS_NUMBER, $postSeeder->insertedIds);
+            $postsTagsCount = $this->populatePostsTagsRelationship(self::DEFAULT_POSTS_TAGS_NUMBER);
             $output->writeln("\nStep 4/10 - {$postsTagsCount} relationships added");
 
-            $commentsSeeder = new CommentSeeder(new CommentRepository($connection));
-            $commentsCount = $commentsSeeder->populate($progressBar, self::DEFAULT_COMMENTS_NUMBER, $postSeeder->insertedIds, $userSeeder->insertedIds);
+            $commentsCount = $this->populateComments(self::DEFAULT_COMMENTS_NUMBER);
             $output->writeln("\nStep 5/10 - {$commentsCount} comments added");
 
-            $commentReportsSeeder = new CommentReportSeeder(new CommentReportRepository($connection));
-            $commentReportsCount = $commentReportsSeeder->populate($progressBar, self::DEFAULT_COMMENT_REPORTS_NUMBER, $commentsSeeder->insertedIds, $userSeeder->insertedIds);
+            $commentReportsCount = $this->populateCommentReports(self::DEFAULT_COMMENT_REPORTS_NUMBER);
             $output->writeln("\nStep 6/10 - {$commentReportsCount} comment reports added");
 
-            $mentionSeeder = new MentionSeeder(new MentionRepository($connection));
-            $mentionsCount = $mentionSeeder->populate($progressBar, self::DEFAULT_MENTIONS_NUMBER, $commentsSeeder->insertedIds, $userSeeder->insertedIds);
+            $mentionsCount = $this->populateMentions(self::DEFAULT_MENTIONS_NUMBER);
             $output->writeln("\nStep 7/10 - {$mentionsCount} mentions added");
 
-            $banSeeder = new BanSeeder(new BanRepository($connection));
-            $banCount = $banSeeder->populate($progressBar, self::DEFAULT_BANS_NUMBER, $userSeeder->insertedIds);
+            $banCount = $this->populateBans(self::DEFAULT_BANS_NUMBER);
             $output->writeln("\nStep 8/10 - {$banCount} bans added");
 
-            $ipBanSeeder = new IpBanSeeder(new IpBanRepository($connection));
-            $ipBanCount = $ipBanSeeder->populate($progressBar, self::DEFAULT_IP_BANS_NUMBER, $userSeeder->insertedIds);
+            $ipBanCount = $this->populateIpBans(self::DEFAULT_IP_BANS_NUMBER);
             $output->writeln("\nStep 9/10 - {$ipBanCount} ip bans added");
 
-            $logSeeder = new LogSeeder(new LogRepository($connection));
-            $logsCount = $logSeeder->populate($progressBar, self::DEFAULT_LOGS_NUMBER, $userSeeder->insertedIds);
+            $logsCount = $this->populateLogs(self::DEFAULT_LOGS_NUMBER);
             $output->writeln("\nStep 10/10 - {$logsCount} logs added");
 
-            $total = $usersCount + $postsCount + $tagsCount + $postsTagsCount + $commentsCount + $commentReportsCount + $mentionsCount + $banCount + $ipBanCount + $logsCount;
-            $output->writeln("Seed finished. Database populated with {$total} rows");
+            $output->writeln("Seed finished. Database populated with {$this->totalCount} rows");
         } catch (\Exception $exception) {
             $output->writeln("Error populating database: {$exception->getMessage()}");
         }
+    }
+
+    private function populateUsers($iterations): int
+    {
+        $seeder = new UserSeeder(new UserRepository($this->connection));
+        $count = $seeder->populate($this->progressBar, $iterations);
+        $this->userIds = $seeder->insertedIds;
+        $this->totalCount += $count;
+
+        return $count;
+    }
+
+    private function populatePosts($iterations): int
+    {
+        $seeder = new PostSeeder(new PostRepository($this->connection));
+        $count = $seeder->populate($this->progressBar, $iterations, $this->userIds);
+        $this->postIds = $seeder->insertedIds;
+        $this->totalCount += $count;
+
+        return $count;
+    }
+
+    private function populateTags($iterations): int
+    {
+        $seeder = new TagSeeder(new TagRepository($this->connection));
+        $count = $seeder->populate($this->progressBar, $iterations);
+        $this->tagIds = $seeder->insertedIds;
+        $this->totalCount += $count;
+
+        return $count;
+    }
+
+    private function populatePostsTagsRelationship($iterations): int
+    {
+        $seeder = new TagSeeder(new TagRepository($this->connection));
+        $count = $seeder->populatePostsTagsRelationship($this->progressBar, $iterations, $this->tagIds, $this->postIds);
+        $this->totalCount += $count;
+
+        return $count;
+    }
+
+    private function populateComments($iterations): int
+    {
+        $seeder = new CommentSeeder(new CommentRepository($this->connection));
+        $count = $seeder->populate($this->progressBar, $iterations, $this->postIds, $this->userIds);
+        $this->commentIds = $seeder->insertedIds;
+        $this->totalCount += $count;
+
+        return $count;
+    }
+
+    private function populateCommentReports($iterations): int
+    {
+        $seeder = new CommentReportSeeder(new CommentReportRepository($this->connection));
+        $count = $seeder->populate($this->progressBar, $iterations, $this->commentIds, $this->userIds);
+        $this->totalCount += $count;
+
+        return $count;
+    }
+
+    private function populateMentions($iterations): int
+    {
+        $seeder = new MentionSeeder(new MentionRepository($this->connection));
+        $count = $seeder->populate($this->progressBar, $iterations, $this->commentIds, $this->userIds);
+        $this->totalCount += $count;
+
+        return $count;
+    }
+
+    private function populateBans($iterations): int
+    {
+        $seeder = new BanSeeder(new BanRepository($this->connection));
+        $count = $seeder->populate($this->progressBar, $iterations, $this->userIds);
+        $this->totalCount += $count;
+
+        return $count;
+    }
+
+    private function populateIpBans($iterations): int
+    {
+        $seeder = new IpBanSeeder(new IpBanRepository($this->connection));
+        $count = $seeder->populate($this->progressBar, $iterations, $this->userIds);
+        $this->totalCount += $count;
+
+        return $count;
+    }
+
+    private function populateLogs($iterations): int
+    {
+        $seeder = new LogSeeder(new LogRepository($this->connection));
+        $count = $seeder->populate($this->progressBar, $iterations, $this->userIds);
+        $this->totalCount += $count;
+
+        return $count;
     }
 }

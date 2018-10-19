@@ -35,20 +35,23 @@ class TagSeeder
         return count($this->insertedIds);
     }
 
-    public function populatePostsTagsRelationship(ProgressBar $progressBar, int $iterations, array $insertedPostIds): int
+    public function populatePostsTagsRelationship(ProgressBar $progressBar, int $iterations, array $insertedTagIds, array $insertedPostIds): int
     {
         $progressBar->setMaxSteps($iterations);
         $progressBar->start();
 
         for ($i = 1; $i <= $iterations; $i++) {
-            $postId = array_rand($insertedPostIds, 1);
-            $tagId = array_rand($this->insertedIds, 1);
+            $postId = $insertedPostIds[array_rand($insertedTagIds, 1)];
+            $tagId = $insertedTagIds[array_rand($insertedTagIds, 1)];
             $this->repository->addRelationship($postId, $tagId);
 
             $progressBar->advance();
         }
 
         $progressBar->finish();
-        return $iterations;
+
+        $this->insertedIds = $this->repository->getInsertedIds();
+
+        return count($this->insertedIds);
     }
 }

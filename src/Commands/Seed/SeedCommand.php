@@ -16,6 +16,7 @@ use Database\Repositories\CommentReportRepository;
 use Database\Repositories\MentionRepository;
 use Database\Repositories\BanRepository;
 use Database\Repositories\IpBanRepository;
+use Database\Repositories\LogRepository;
 
 use Commands\Seed\Seeders\UserSeeder;
 use Commands\Seed\Seeders\PostSeeder;
@@ -25,6 +26,7 @@ use Commands\Seed\Seeders\CommentReportSeeder;
 use Commands\Seed\Seeders\MentionSeeder;
 use Commands\Seed\Seeders\BanSeeder;
 use Commands\Seed\Seeders\IpBanSeeder;
+use Commands\Seed\Seeders\LogSeeder;
 
 class SeedCommand extends Command
 {
@@ -37,6 +39,7 @@ class SeedCommand extends Command
     private const DEFAULT_MENTIONS_NUMBER = 20;
     private const DEFAULT_BANS_NUMBER = 10;
     private const DEFAULT_IP_BANS_NUMBER = 5;
+    private const DEFAULT_LOGS_NUMBER = 20;
 
     protected function configure()
     {
@@ -89,7 +92,11 @@ class SeedCommand extends Command
             $ipBanCount = $ipBanSeeder->populate($progressBar, self::DEFAULT_IP_BANS_NUMBER, $userSeeder->insertedIds);
             $output->writeln("\nStep 9/10 - {$ipBanCount} ip bans added");
 
-            $total = $usersCount + $postsCount + $tagsCount + $postsTagsCount + $commentsCount + $commentReportsCount + $mentionsCount + $banCount + $ipBanCount;
+            $logSeeder = new LogSeeder(new LogRepository($connection));
+            $logsCount = $logSeeder->populate($progressBar, self::DEFAULT_LOGS_NUMBER, $userSeeder->insertedIds);
+            $output->writeln("\nStep 10/10 - {$logsCount} logs added");
+
+            $total = $usersCount + $postsCount + $tagsCount + $postsTagsCount + $commentsCount + $commentReportsCount + $mentionsCount + $banCount + $ipBanCount + $logsCount;
             $output->writeln("Seed finished. Database populated with {$total} rows");
         } catch (\Exception $exception) {
             $output->writeln("Error populating database: {$exception->getMessage()}");

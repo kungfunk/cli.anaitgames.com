@@ -42,7 +42,6 @@ CREATE TABLE `comments` (
   `post_id` int(10) unsigned NOT NULL,
   `user_id` int(10) unsigned NOT NULL,
   `body` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
-  `formatted_body` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`id`),
   KEY `1` (`post_id`),
   KEY `comments_user_id_foreign` (`user_id`),
@@ -155,7 +154,6 @@ CREATE TABLE `posts` (
   `subtitle` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `slug` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `body` longtext COLLATE utf8mb4_unicode_ci,
-  `formatted_body` longtext COLLATE utf8mb4_unicode_ci,
   `excerpt` longtext COLLATE utf8mb4_unicode_ci,
   `original_author` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `score` tinyint(4) DEFAULT NULL,
@@ -211,10 +209,10 @@ CREATE TABLE `users` (
   UNIQUE KEY `users_username_unique` (`username`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-INSERT INTO anaitgames.categories (name, slug) VALUES ('Artículo', 'articulo');
-INSERT INTO anaitgames.categories (name, slug) VALUES ('Noticia', 'noticia');
-INSERT INTO anaitgames.categories (name, slug) VALUES ('Análisis', 'analisis');
-INSERT INTO anaitgames.categories (name, slug) VALUES ('Podcast', 'podcast');
-INSERT INTO anaitgames.categories (name, slug) VALUES ('Streaming', 'streaming');
+INSERT INTO categories (name, slug) VALUES ('Artículo', 'articulo');
+INSERT INTO categories (name, slug) VALUES ('Noticia', 'noticia');
+INSERT INTO categories (name, slug) VALUES ('Análisis', 'analisis');
+INSERT INTO categories (name, slug) VALUES ('Podcast', 'podcast');
+INSERT INTO categories (name, slug) VALUES ('Streaming', 'streaming');
 
 -- 2018-09-10 15:52:55

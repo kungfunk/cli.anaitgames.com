@@ -17,11 +17,11 @@ class ClearCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $create = new Clear();
         $database = $input->getArgument('database');
+        $clear = new Clear($database);
 
         try {
-            $create->create($database);
+            $clear->clear();
             $output->writeln("Database {$database} cleared.");
         } catch (\Exception $exception) {
             $output->writeln("Error clearing the database: {$exception->getMessage()}");

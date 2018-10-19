@@ -1,23 +1,26 @@
 <?php
 namespace Commands\Create;
 
-use Database\PDOConnector;
+use Database\PDOConnectorFactory;
 use Utils\ResourceLoader;
 
 class Create
 {
-    private $connection;
+    private $database;
 
-    public function create($database)
+    public function __construct($database)
     {
-        $PDOConnector = new PDOConnector($database);
+        $this->database = $database;
+    }
 
-        if (!$PDOConnector->isEmpty()) {
-            throw new \PDOException("The database {$database} is not empty.");
+    public function create()
+    {
+        $connection = PDOConnectorFactory::getConnection($this->database);
+
+        if (!PDOConnectorFactory::isEmpty()) {
+            throw new \PDOException("The database {$this->database} is not empty.");
         }
 
-        $this->connection = $PDOConnector->getConnection();
-        $sql = ResourceLoader::load('schema.sql');
-        return $this->connection->exec($sql);
+        return $connection->exec(ResourceLoader::load('schema.sql'));
     }
 }

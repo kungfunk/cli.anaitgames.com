@@ -1,21 +1,26 @@
 <?php
 namespace Commands\Clear;
 
-use Database\PDOConnector;
+use Database\PDOConnectorFactory;
 use Utils\ResourceLoader;
 
 class Clear
 {
-    public function create($database)
-    {
-        $PDOConnector = new PDOConnector($database);
+    private $database;
 
-        if ($PDOConnector->isEmpty()) {
-            throw new \PDOException("The database {$database} is empty. Nothing to clear.");
+    public function __construct($database)
+    {
+        $this->database = $database;
+    }
+
+    public function clear()
+    {
+        $connection = PDOConnectorFactory::getConnection($this->database);
+
+        if (PDOConnectorFactory::isEmpty()) {
+            throw new \PDOException("The database {$this->database} is empty. Nothing to clear.");
         }
 
-        $connection = $PDOConnector->getConnection();
-        $sql = ResourceLoader::load('clear.sql');
-        return $connection->exec($sql);
+        return $connection->exec(ResourceLoader::load('clear.sql'));
     }
 }

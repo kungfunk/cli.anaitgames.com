@@ -17,11 +17,11 @@ class CreateCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $create = new Create();
         $database = $input->getArgument('database');
+        $create = new Create($database);
 
         try {
-            $create->create($database);
+            $create->create();
             $output->writeln("Database {$database} created.");
         } catch (\Exception $exception) {
             $output->writeln("Error creating the database: {$exception->getMessage()}");

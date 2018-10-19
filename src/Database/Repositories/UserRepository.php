@@ -1,24 +1,15 @@
 <?php
 namespace Database\Repositories;
 
-use Database\PDOConnector;
+use Database\PDORepository;
 use Models\User;
 
-class UserRepository
+class UserRepository extends PDORepository
 {
-    private $connection;
-    private $insertedIds = [];
-
-    public function __construct($database)
-    {
-        $PDOConnector = new PDOConnector($database);
-        $this->connection = $PDOConnector->getConnection();
-    }
-
     public function save(User $user)
     {
         $statement = $this->connection->prepare(
-            "INSERT INTO `users` (`name`, `email`, `password`, `username`, `role`, `patreon_level`, `avatar`, `rank`, `twitter`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+            "INSERT INTO `users` (`name`, `email`, `password`, `username`, `role`, `patreon_level`, `avatar`, `rank`, `twitter`, `created_at`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())"
         );
         $result = $statement->execute([
             $user->name,
@@ -35,10 +26,5 @@ class UserRepository
         $this->insertedIds[] = $this->connection->lastInsertId();
 
         return $result;
-    }
-
-    public function getInsertedIds()
-    {
-        return $this->insertedIds;
     }
 }

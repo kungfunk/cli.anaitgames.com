@@ -1,20 +1,18 @@
 <?php
 namespace Models;
 
-use Faker\Factory;
-
 class Comment
 {
     public $post_id;
     public $user_id;
     public $body;
+    public $created_at;
 
-    public function __construct($postIds, $userIds)
+    public function __construct($post_id, $user_id, $body, $created_at = null)
     {
-        $faker = Factory::create();
-
-        $this->post_id = $faker->randomElement($postIds);
-        $this->user_id = $faker->randomElement($userIds);
-        $this->body = $faker->text(500);
+        $this->post_id = $post_id;
+        $this->user_id = $user_id;
+        $this->body = $body;
+        $this->created_at = $created_at;
     }
 }

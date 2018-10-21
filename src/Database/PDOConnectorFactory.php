@@ -10,31 +10,25 @@ class PDOConnectorFactory
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_OBJ
     ];
 
-    private static $connection;
-
     public static function getConnection($database): PDO
     {
-        if (is_null(self::$connection))
-        {
-            $driver = getenv('DB_DRIVER');
-            $host = getenv('DB_HOST');
-            $user = getenv('DB_USER');
-            $pass = getenv('DB_PASS');
-            $charset = getenv('DB_CHARSET');
+        $driver = getenv('DB_DRIVER');
+        $host = getenv('DB_HOST');
+        $user = getenv('DB_USER');
+        $pass = getenv('DB_PASS');
+        $charset = getenv('DB_CHARSET');
 
-            self::$connection = new PDO(
-                "{$driver}:host={$host};dbname={$database};charset={$charset}",
-                $user,
-                $pass,
-                self::OPTIONS
-            );
-        }
-        return self::$connection;
+        return new PDO(
+            "{$driver}:host={$host};dbname={$database};charset={$charset}",
+            $user,
+            $pass,
+            self::OPTIONS
+        );
     }
 
-    public static function isEmpty(): bool {
+    public static function isEmpty(PDO $connection): bool {
         $checkSql = "SHOW TABLES";
-        $statement = self::$connection->prepare($checkSql);
+        $statement = $connection->prepare($checkSql);
         $statement->execute();
         $tables = $statement->fetchAll(PDO::FETCH_NUM);
 

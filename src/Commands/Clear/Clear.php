@@ -17,7 +17,7 @@ class Clear
     {
         $connection = PDOConnectorFactory::getConnection($this->database);
 
-        if (PDOConnectorFactory::isEmpty()) {
+        if (PDOConnectorFactory::isEmpty($connection)) {
             throw new \PDOException("The database {$this->database} is empty. Nothing to clear.");
         }
 

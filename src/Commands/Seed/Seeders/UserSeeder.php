@@ -1,7 +1,7 @@
 <?php
 namespace Commands\Seed\Seeders;
 
-use Models\User;
+use Models\Factories\UserFactory;
 use Database\Repositories\UserRepository;
 
 use Symfony\Component\Console\Helper\ProgressBar;
@@ -22,7 +22,7 @@ class UserSeeder
         $progressBar->start();
 
         for ($i = 1; $i <= $iterations; $i++) {
-            $user = new User();
+            $user = UserFactory::fake();
             $this->repository->save($user);
 
             $progressBar->advance();

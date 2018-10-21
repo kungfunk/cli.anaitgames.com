@@ -1,8 +1,6 @@
 <?php
 namespace Models;
 
-use Faker\Factory;
-
 class User
 {
     public $name;
@@ -14,19 +12,19 @@ class User
     public $avatar;
     public $rank;
     public $twitter;
+    public $created_at;
 
-    public function __construct()
+    public function __construct($name, $email, $password, $username, $role, $patreon_level, $avatar, $rank, $twitter, $created_at = null)
     {
-        $faker = Factory::create();
-
-        $this->name = $faker->name;
-        $this->email = $faker->email;
-        $this->password = password_hash('1234', PASSWORD_DEFAULT);
-        $this->username = $faker->userName;
-        $this->role = $faker->randomElement(['user' ,'moderator', 'editor', 'admin', 'superadmin']);
-        $this->patreon_level = $faker->numberBetween(1, 3);
-        $this->avatar = $faker->imageUrl($width = 100, $height = 100);
-        $this->rank = $faker->sentence(3);
-        $this->twitter = '@' . $faker->userName;
+        $this->name = $name;
+        $this->email = $email;
+        $this->password = $password;
+        $this->username = $username;
+        $this->role = $role;
+        $this->patreon_level = $patreon_level;
+        $this->avatar = $avatar;
+        $this->rank = $rank;
+        $this->twitter = $twitter;
+        $this->created_at = $created_at;
     }
 }

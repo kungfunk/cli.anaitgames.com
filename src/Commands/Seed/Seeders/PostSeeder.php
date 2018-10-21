@@ -1,7 +1,7 @@
 <?php
 namespace Commands\Seed\Seeders;
 
-use Models\Post;
+use Models\Factories\PostFactory;
 use Database\Repositories\PostRepository;
 
 use Symfony\Component\Console\Helper\ProgressBar;
@@ -22,7 +22,7 @@ class PostSeeder
         $progressBar->start();
 
         for ($i = 1; $i <= $iterations; $i++) {
-            $post = new Post($userIds);
+            $post = PostFactory::fake($userIds);
             $this->repository->save($post);
 
             $progressBar->advance();

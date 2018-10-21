@@ -17,4 +17,9 @@ class PDORepository
     {
         return $this->insertedIds;
     }
+
+    public function getLastInsertedId()
+    {
+        return $this->connection->lastInsertId();
+    }
 }
